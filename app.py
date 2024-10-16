@@ -2,16 +2,23 @@
 # Copyright Amazon.com and its affiliates; all rights reserved. This file is Amazon Web Services Content and may not be duplicated or distributed without permission.
 # SPDX-License-Identifier: MIT-0
 import os
+
 import aws_cdk as cdk
 from cdk_nag import AwsSolutionsChecks, NagSuppressions
 
-from lib.pipeline_stack import PipelineStack
-from lib.empty_stack import EmptyStack
-from lib.code_commit_stack import CodeCommitStack
 from lib.configuration import (
-    ACCOUNT_ID, CODECOMMIT_MIRROR_REPOSITORY_NAME, DEPLOYMENT, DEV, TEST, PROD, REGION, CODE_BRANCH,
-    get_logical_id_prefix, get_all_configurations
+    ACCOUNT_ID,
+    CODE_BRANCH,
+    DEPLOYMENT,
+    DEV,
+    PROD,
+    REGION,
+    TEST,
+    get_all_configurations,
+    get_logical_id_prefix,
 )
+from lib.empty_stack import EmptyStack
+from lib.pipeline_stack import PipelineStack
 from lib.tagging import tag
 
 app = cdk.App()
@@ -32,16 +39,6 @@ else:
         'region': deployment_region,
     }
     logical_id_prefix = get_logical_id_prefix()
-
-    if raw_mappings[DEPLOYMENT][CODECOMMIT_MIRROR_REPOSITORY_NAME] != '':
-        mirror_repository_stack = CodeCommitStack(
-            app,
-            f'{DEPLOYMENT}-{logical_id_prefix}InfrastructureMirrorRepository',
-            description='InsuranceLake stack for Infrastructure repository mirror (SO9489) (uksb-1tu7mtee2)',
-            target_environment=DEPLOYMENT,
-            env=deployment_aws_env,
-        )
-        tag(mirror_repository_stack, DEPLOYMENT)
 
     if os.environ.get('ENV', DEV) == DEV:
         target_environment = DEV

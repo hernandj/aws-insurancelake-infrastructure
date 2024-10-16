@@ -1,23 +1,30 @@
 # Copyright Amazon.com and its affiliates; all rights reserved. This file is Amazon Web Services Content and may not be duplicated or distributed without permission.
 # SPDX-License-Identifier: MIT-0
 import aws_cdk as cdk
-from constructs import Construct
-import aws_cdk.pipelines as Pipelines
-import aws_cdk.aws_s3 as s3
-import aws_cdk.aws_iam as iam
-import aws_cdk.aws_logs as logs
+import aws_cdk.aws_codebuild as CodeBuild
 import aws_cdk.aws_codepipeline as CodePipeline
 import aws_cdk.aws_codepipeline_actions as CodePipelineActions
-import aws_cdk.aws_codebuild as CodeBuild
-import aws_cdk.aws_codecommit as CodeCommit
+import aws_cdk.aws_iam as iam
+import aws_cdk.aws_logs as logs
+import aws_cdk.aws_s3 as s3
+import aws_cdk.pipelines as Pipelines
 from cdk_nag import AwsSolutionsChecks, NagSuppressions
+from constructs import Construct
 
 from .configuration import (
-    ACCOUNT_ID, CODECOMMIT_MIRROR_REPOSITORY_NAME, DEPLOYMENT, PROD, TEST,
-	GITHUB_REPOSITORY_NAME, GITHUB_REPOSITORY_OWNER_NAME, GITHUB_TOKEN,
-    CODESTAR_CONNECTION_ARN, CODESTAR_REPOSITORY_OWNER_NAME, CODESTAR_REPOSITORY_NAME,
-	CODECOMMIT_REPOSITORY_NAME, CODECOMMIT_MIRROR_REPOSITORY_NAME,
-    get_logical_id_prefix, get_resource_name_prefix, get_all_configurations
+    ACCOUNT_ID,
+    CODESTAR_CONNECTION_ARN,
+    CODESTAR_REPOSITORY_NAME,
+    CODESTAR_REPOSITORY_OWNER_NAME,
+    DEPLOYMENT,
+    GITHUB_REPOSITORY_NAME,
+    GITHUB_REPOSITORY_OWNER_NAME,
+    GITHUB_TOKEN,
+    PROD,
+    TEST,
+    get_all_configurations,
+    get_logical_id_prefix,
+    get_resource_name_prefix,
 )
 from .pipeline_deploy_stage import PipelineDeployStage
 
@@ -88,7 +95,7 @@ class PipelineStack(cdk.Stack):
             build_image=CodeBuild.LinuxBuildImage.STANDARD_7_0,
             privileged=False
         )
-        
+
         code_build_opt = Pipelines.CodeBuildOptions(
             build_environment=code_build_env,
             role_policy=[
@@ -219,23 +226,4 @@ class PipelineStack(cdk.Stack):
                 branch=self.target_branch,
                 connection_arn=self.mappings[DEPLOYMENT][CODESTAR_CONNECTION_ARN],
             )
-        else:
-            # CodeCommit
-            if self.mappings[DEPLOYMENT][CODECOMMIT_MIRROR_REPOSITORY_NAME]:
-                repo = CodeCommit.Repository.from_repository_name(
-                    self,
-                    f'{DEPLOYMENT}{self.logical_id_prefix}InfrastructureMirrorRepository',
-                    repository_name=self.mappings[DEPLOYMENT][CODECOMMIT_MIRROR_REPOSITORY_NAME],
-                )
-            else:
-                repo = CodeCommit.Repository.from_repository_name(
-                    self,
-                    f'{DEPLOYMENT}{self.logical_id_prefix}InfrastructureRepository',
-                    repository_name=self.mappings[DEPLOYMENT][CODECOMMIT_REPOSITORY_NAME],
-                )
 
-            return Pipelines.CodePipelineSource.code_commit(
-                repository=repo,
-                branch=self.target_branch,
-                code_build_clone_output=True,
-            )

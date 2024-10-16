@@ -89,8 +89,7 @@ The table below explains how this source code is structured.
 
 | File / Folder    | Description
 |------------------| -------------
-| [app.py](https://github.com/aws-solutions-library-samples/aws-insurancelake-infrastructure/blob/main/app.py) | Application entry point 
-| [code_commit_stack.py](https://github.com/aws-solutions-library-samples/aws-insurancelake-infrastructure/blob/main/lib/code_commit_stack.py) | Optional stack to deploy an empty CodeCommit respository for mirroring
+| [app.py](https://github.com/aws-solutions-library-samples/aws-insurancelake-infrastructure/blob/main/app.py) | Application entry point
 | [pipeline_stack.py](https://github.com/aws-solutions-library-samples/aws-insurancelake-infrastructure/blob/main/lib/pipeline_stack.py) | CodePipeline stack entry point
 | [pipeline_deploy_stage.py](https://github.com/aws-solutions-library-samples/aws-insurancelake-infrastructure/blob/main/lib/pipeline_deploy_stage.py) | CodePipeline deploy stage entry point
 | [s3_bucket_zones_stack.py](https://github.com/aws-solutions-library-samples/aws-insurancelake-infrastructure/blob/main/lib/s3_bucket_zones_stack.py) | Stack to create three S3 buckets (Collect, Cleanse, and Consume), supporting S3 bucket for server access logging, and KMS Key to enable server side encryption for all buckets
