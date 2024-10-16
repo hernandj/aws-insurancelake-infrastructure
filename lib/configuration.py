@@ -1,6 +1,8 @@
 # Copyright Amazon.com and its affiliates; all rights reserved. This file is Amazon Web Services Content and may not be duplicated or distributed without permission.
 # SPDX-License-Identifier: MIT-0
+import base64
 import re
+
 import boto3
 
 # Environments (targeted at accounts)
@@ -77,13 +79,13 @@ def get_local_configuration(environment: str, local_mapping: dict = None) -> dic
         local_mapping = {
             DEPLOYMENT: {
                 ACCOUNT_ID: active_account_id,
-                REGION: 'us-east-2',
+                REGION: 'us-east-1',
 
                 # If you use GitHub / GitHub Enterprise, this will be the organization name
-                GITHUB_REPOSITORY_OWNER_NAME: '',
+                GITHUB_REPOSITORY_OWNER_NAME: 'hernandj',
 
                 # Leave empty if you do not use Github (use your forked Github repo here!)
-                GITHUB_REPOSITORY_NAME: '',
+                GITHUB_REPOSITORY_NAME: 'aws-insurancelake-infrastructure',
 
                 # If you use Bitbucket Cloud or any other supported Codestar provider, specify the
                 # Codestar connection ARN
@@ -115,19 +117,19 @@ def get_local_configuration(environment: str, local_mapping: dict = None) -> dic
             },
             DEV: {
                 ACCOUNT_ID: active_account_id,
-                REGION: 'us-east-2',
+                REGION: 'us-east-1',
                 # VPC_CIDR: '10.20.0.0/24',
-                CODE_BRANCH: 'develop',
+                CODE_BRANCH: 'development',
             },
             TEST: {
                 ACCOUNT_ID: active_account_id,
-                REGION: 'us-east-2',
+                REGION: 'us-east-1',
                 # VPC_CIDR: '10.10.0.0/24',
                 CODE_BRANCH: 'test',
             },
             PROD: {
                 ACCOUNT_ID: active_account_id,
-                REGION: 'us-east-2',
+                REGION: 'us-east-1',
                 # VPC_CIDR: '10.0.0.0/24',
                 CODE_BRANCH: 'main',
             }
@@ -206,7 +208,7 @@ def get_all_configurations() -> dict:
     return {
         DEPLOYMENT: {
             ENVIRONMENT: DEPLOYMENT,
-            GITHUB_TOKEN: '/InsuranceLake/GitHubToken',
+            GITHUB_TOKEN: get_aws_secret('github-token', 'us-east-1'), #JL-> '/InsuranceLake/GitHubToken',
             **get_local_configuration(DEPLOYMENT),
         },
         DEV: get_environment_configuration(DEV),
@@ -235,3 +237,30 @@ def get_resource_name_prefix() -> str:
         Resource name prefix from deployment configuration
     """
     return get_local_configuration(DEPLOYMENT)[RESOURCE_NAME_PREFIX]
+
+
+def get_aws_secret(secret_name, region):
+    """
+    Retrieve a secret from AWS Secrets Manager.
+
+    Args:
+        secret_name (str): The name of the secret to retrieve.
+        region (str): The AWS region where the secret is stored.
+
+    Returns:
+        str: The secret value as a string if it is stored as a SecretString.
+        bytes: The secret value as bytes if it is stored as SecretBinary.
+
+    Raises:
+        botocore.exceptions.ClientError: If there is an error retrieving the secret.
+    """
+    session = boto3.session.Session()
+    client = session.client(
+        service_name="secretsmanager",
+        region_name=region,
+    )
+    get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+    if "SecretString" in get_secret_value_response:
+        return get_secret_value_response["SecretString"]
+    else:
+        return base64.b64decode(get_secret_value_response["SecretBinary"])
