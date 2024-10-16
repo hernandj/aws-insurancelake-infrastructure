@@ -208,7 +208,7 @@ def get_all_configurations() -> dict:
     return {
         DEPLOYMENT: {
             ENVIRONMENT: DEPLOYMENT,
-            GITHUB_TOKEN: get_aws_secret('github-token', 'us-east-1'), #JL-> '/InsuranceLake/GitHubToken',
+            GITHUB_TOKEN: 'github-token', #get_aws_secret('github-token', 'us-east-1'), #JL-> '/InsuranceLake/GitHubToken',
             **get_local_configuration(DEPLOYMENT),
         },
         DEV: get_environment_configuration(DEV),
