@@ -104,7 +104,7 @@ def get_local_configuration(environment: str, local_mapping: dict = None) -> dic
                 # Use only if you do NOT use Github or CodeCommit and need to mirror your repository
                 # Name your CodeCommit mirror repo here (recommend matching your external repo)
                 # Leave empty if you use Github or your repository is in CodeCommit already
-                CODECOMMIT_MIRROR_REPOSITORY_NAME: 'aws-insurancelake-infrastructure',
+                CODECOMMIT_MIRROR_REPOSITORY_NAME: '', #JL 'aws-insurancelake-infrastructure',
 
                 # This is used in the Logical Id of CloudFormation resources.
                 # We recommend Capital case for consistency, e.g. DataLakeCdkBlog
