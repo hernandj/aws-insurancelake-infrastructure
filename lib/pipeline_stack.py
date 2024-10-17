@@ -141,7 +141,7 @@ class PipelineStack(cdk.Stack):
                     'python -m pip install -r requirements.txt --root-user-action=ignore',
                     'cdk synth'
                 ],
-                primary_output_directory='./cdk.out/',
+                primary_output_directory='/cdk.out',
             ),
             #cross_account_keys=True
         )
