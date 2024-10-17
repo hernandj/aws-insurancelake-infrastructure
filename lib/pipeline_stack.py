@@ -210,6 +210,7 @@ class PipelineStack(cdk.Stack):
                     repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
                         f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
                     branch=self.target_branch,
+                    action_name='Source',
                     authentication=cdk.SecretValue.secrets_manager(
                         self.mappings[DEPLOYMENT][GITHUB_TOKEN_NAME]
                     ),
