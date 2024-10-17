@@ -118,11 +118,20 @@ class PipelineStack(cdk.Stack):
             ]
         )
 
+        code_pipeline=CodePipeline.Pipeline(
+                self,
+                f'{target_environment}{self.logical_id_prefix}Pipeline',
+                pipeline_name=f'{target_environment.lower()}-{self.resource_name_prefix}-infrastructure-pipeline',
+                pipeline_type=CodePipeline.PipelineType.V2,
+                execution_mode=CodePipeline.ExecutionMode.QUEUED,
+                cross_account_keys=True
+            )
+
         pipeline = Pipelines.CodePipeline(
             self,
             f'{target_environment}{self.logical_id_prefix}InfrastructurePipeline',
-            pipeline_name=f'{target_environment.lower()}-{self.resource_name_prefix}-infrastructure-pipeline',
             code_build_defaults=code_build_opt,
+            code_pipeline=code_pipeline,
             self_mutation=True,
             synth=Pipelines.ShellStep(
                 'Synth',
@@ -133,7 +142,7 @@ class PipelineStack(cdk.Stack):
                     'cdk synth'
                 ],
             ),
-            cross_account_keys=True
+            #cross_account_keys=True
         )
 
         pipeline_deploy_stage = PipelineDeployStage(
@@ -189,6 +198,13 @@ class PipelineStack(cdk.Stack):
 
         # Apply Nag Suppression to all Pipeline resources (many role and policies)
         NagSuppressions.add_resource_suppressions(pipeline, [
+            {
+                'id': 'AwsSolutions-IAM5',
+                'reason': 'Wildcard IAM permissions are used by auto-created Codepipeline policies and custom policies to allow flexible creation of resources'
+            },
+        ], apply_to_children=True)
+
+        NagSuppressions.add_resource_suppressions(code_pipeline, [
             {
                 'id': 'AwsSolutions-IAM5',
                 'reason': 'Wildcard IAM permissions are used by auto-created Codepipeline policies and custom policies to allow flexible creation of resources'
