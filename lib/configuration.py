@@ -25,7 +25,7 @@ RESOURCE_NAME_PREFIX = 'resource_name_prefix'
 CODE_BRANCH = 'code_branch'
 
 # Secrets Manager Inputs
-GITHUB_TOKEN = 'github_token'
+GITHUB_TOKEN_NAME = 'github_token'
 
 # Used in Automated Outputs
 VPC_ID = 'vpc_id'
@@ -184,7 +184,7 @@ def get_all_configurations() -> dict:
     return {
         DEPLOYMENT: {
             ENVIRONMENT: DEPLOYMENT,
-            GITHUB_TOKEN: 'github-token', #get_aws_secret('github-token', 'us-east-1'), #JL-> '/InsuranceLake/GitHubToken',
+            GITHUB_TOKEN_NAME: 'github-token',
             **get_local_configuration(DEPLOYMENT),
         },
         DEV: get_environment_configuration(DEV),

@@ -16,7 +16,7 @@ from .configuration import (
     DEPLOYMENT,
     GITHUB_REPOSITORY_NAME,
     GITHUB_REPOSITORY_OWNER_NAME,
-    GITHUB_TOKEN,
+    GITHUB_TOKEN_NAME,
     PROD,
     TEST,
     get_all_configurations,
@@ -211,7 +211,7 @@ class PipelineStack(cdk.Stack):
                         f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
                     branch=self.target_branch,
                     authentication=cdk.SecretValue.secrets_manager(
-                        self.mappings[DEPLOYMENT][GITHUB_TOKEN]
+                        self.mappings[DEPLOYMENT][GITHUB_TOKEN_NAME]
                     ),
                     trigger=CodePipelineActions.GitHubTrigger.POLL,
                 )

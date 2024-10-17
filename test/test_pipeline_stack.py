@@ -173,55 +173,6 @@ def test_codebuild_runs_synth(monkeypatch):
     )
 
 
-# def test_pipeline_pulls_source_from_connection(monkeypatch):
-#     monkeypatch.setattr(configuration.boto3, 'client', mock_boto3_client)
-#     monkeypatch.setattr(configuration, 'get_local_configuration', mock_get_local_configuration_with_codestar)
-
-#     app = cdk.App()
-
-#     pipeline_stack = PipelineStack(
-#         app,
-#         'Dev-PipelineStackForTests',
-#         target_environment=DEV,
-#         target_branch='main',
-#         # Target and Pipeline account/region are the same - not testing cross-account/cross-region
-#         target_aws_env={ 'account': mock_account_id, 'region': mock_region },
-#         env=cdk.Environment(
-#             account=mock_account_id,
-#             region=mock_region
-#         ),
-#     )
-
-#     template = Template.from_stack(pipeline_stack)
-#     template.has_resource_properties(
-#         'AWS::CodePipeline::Pipeline',
-#         Match.object_like(
-#             {
-#                 "Stages": Match.array_with([
-#                     {
-#                         "Actions": [
-#                             {
-#                                 "ActionTypeId": {
-#                                     "Category": "Source",
-#                                     "Owner": "AWS",
-#                                     "Provider": "CodeStarSourceConnection",
-#                                     "Version": "1"
-#                                 },
-#                                 "Configuration": Match.any_value(),
-#                                 "Name": Match.any_value(),
-#                                 "OutputArtifacts": Match.any_value(),
-#                                 "RoleArn": Match.any_value(),
-#                                 "RunOrder": 1,
-#                             },
-#                         ],
-#                         "Name": "Source",
-#                     }
-#                 ])
-#             }
-#         )
-#     )
-
-
 def test_pipeline_pulls_source_from_github(monkeypatch):
     monkeypatch.setattr(configuration.boto3, 'client', mock_boto3_client)
     monkeypatch.setattr(configuration, 'get_local_configuration', mock_get_local_configuration_with_github)
