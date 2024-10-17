@@ -8,9 +8,6 @@ from boto_mocking_helper import *
 import lib.configuration as configuration
 from lib.configuration import (
     ACCOUNT_ID,
-    CODESTAR_CONNECTION_ARN,
-    CODESTAR_REPOSITORY_NAME,
-    CODESTAR_REPOSITORY_OWNER_NAME,
     DEV,
     GITHUB_REPOSITORY_NAME,
     GITHUB_REPOSITORY_OWNER_NAME,
@@ -30,22 +27,14 @@ mock_configuration_base = {
     RESOURCE_NAME_PREFIX: 'testlake',
 }
 
+
 def mock_get_local_configuration_with_github(environment, local_mapping = None):
     return mock_configuration_base | \
         {
             GITHUB_REPOSITORY_NAME: 'mock-github-repository',
-            CODESTAR_REPOSITORY_NAME: '',
             GITHUB_REPOSITORY_OWNER_NAME: '',
         }
 
-def mock_get_local_configuration_with_codestar(environment, local_mapping = None):
-    return mock_configuration_base | \
-        {
-            GITHUB_REPOSITORY_NAME: '',
-            CODESTAR_REPOSITORY_NAME: 'mock-codestar-repository',
-            CODESTAR_REPOSITORY_OWNER_NAME: 'test-owner',
-            CODESTAR_CONNECTION_ARN: 'arn:aws:codestar-connections:::',
-        }
 
 def test_cross_region_number_of_stacks(monkeypatch):
     monkeypatch.setattr(configuration.boto3, 'client', mock_boto3_client)
@@ -184,53 +173,53 @@ def test_codebuild_runs_synth(monkeypatch):
     )
 
 
-def test_pipeline_pulls_source_from_connection(monkeypatch):
-    monkeypatch.setattr(configuration.boto3, 'client', mock_boto3_client)
-    monkeypatch.setattr(configuration, 'get_local_configuration', mock_get_local_configuration_with_codestar)
+# def test_pipeline_pulls_source_from_connection(monkeypatch):
+#     monkeypatch.setattr(configuration.boto3, 'client', mock_boto3_client)
+#     monkeypatch.setattr(configuration, 'get_local_configuration', mock_get_local_configuration_with_codestar)
 
-    app = cdk.App()
+#     app = cdk.App()
 
-    pipeline_stack = PipelineStack(
-        app,
-        'Dev-PipelineStackForTests',
-        target_environment=DEV,
-        target_branch='main',
-        # Target and Pipeline account/region are the same - not testing cross-account/cross-region
-        target_aws_env={ 'account': mock_account_id, 'region': mock_region },
-        env=cdk.Environment(
-            account=mock_account_id,
-            region=mock_region
-        ),
-    )
+#     pipeline_stack = PipelineStack(
+#         app,
+#         'Dev-PipelineStackForTests',
+#         target_environment=DEV,
+#         target_branch='main',
+#         # Target and Pipeline account/region are the same - not testing cross-account/cross-region
+#         target_aws_env={ 'account': mock_account_id, 'region': mock_region },
+#         env=cdk.Environment(
+#             account=mock_account_id,
+#             region=mock_region
+#         ),
+#     )
 
-    template = Template.from_stack(pipeline_stack)
-    template.has_resource_properties(
-        'AWS::CodePipeline::Pipeline',
-        Match.object_like(
-            {
-                "Stages": Match.array_with([
-                    {
-                        "Actions": [
-                            {
-                                "ActionTypeId": {
-                                    "Category": "Source",
-                                    "Owner": "AWS",
-                                    "Provider": "CodeStarSourceConnection",
-                                    "Version": "1"
-                                },
-                                "Configuration": Match.any_value(),
-                                "Name": Match.any_value(),
-                                "OutputArtifacts": Match.any_value(),
-                                "RoleArn": Match.any_value(),
-                                "RunOrder": 1,
-                            },
-                        ],
-                        "Name": "Source",
-                    }
-                ])
-            }
-        )
-    )
+#     template = Template.from_stack(pipeline_stack)
+#     template.has_resource_properties(
+#         'AWS::CodePipeline::Pipeline',
+#         Match.object_like(
+#             {
+#                 "Stages": Match.array_with([
+#                     {
+#                         "Actions": [
+#                             {
+#                                 "ActionTypeId": {
+#                                     "Category": "Source",
+#                                     "Owner": "AWS",
+#                                     "Provider": "CodeStarSourceConnection",
+#                                     "Version": "1"
+#                                 },
+#                                 "Configuration": Match.any_value(),
+#                                 "Name": Match.any_value(),
+#                                 "OutputArtifacts": Match.any_value(),
+#                                 "RoleArn": Match.any_value(),
+#                                 "RunOrder": 1,
+#                             },
+#                         ],
+#                         "Name": "Source",
+#                     }
+#                 ])
+#             }
+#         )
+#     )
 
 
 def test_pipeline_pulls_source_from_github(monkeypatch):

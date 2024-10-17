@@ -13,9 +13,6 @@ from constructs import Construct
 
 from .configuration import (
     ACCOUNT_ID,
-    CODESTAR_CONNECTION_ARN,
-    CODESTAR_REPOSITORY_NAME,
-    CODESTAR_REPOSITORY_OWNER_NAME,
     DEPLOYMENT,
     GITHUB_REPOSITORY_NAME,
     GITHUB_REPOSITORY_OWNER_NAME,
@@ -218,12 +215,3 @@ class PipelineStack(cdk.Stack):
                     ),
                     trigger=CodePipelineActions.GitHubTrigger.POLL,
                 )
-        if self.mappings[DEPLOYMENT][CODESTAR_REPOSITORY_NAME]:
-            # CodeStar
-            return Pipelines.CodePipelineSource.connection(
-                repo_string=f'{self.mappings[DEPLOYMENT][CODESTAR_REPOSITORY_OWNER_NAME]}/' \
-                    f'{self.mappings[DEPLOYMENT][CODESTAR_REPOSITORY_NAME]}',
-                branch=self.target_branch,
-                connection_arn=self.mappings[DEPLOYMENT][CODESTAR_CONNECTION_ARN],
-            )
-
