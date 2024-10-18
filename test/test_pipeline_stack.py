@@ -31,8 +31,8 @@ mock_configuration_base = {
 def mock_get_local_configuration_with_github(environment, local_mapping = None):
     return mock_configuration_base | \
         {
-            GITHUB_REPOSITORY_NAME: 'aws-insurancelake-infrastructure', #'mock-github-repository',
-            GITHUB_REPOSITORY_OWNER_NAME: 'hernandj',
+            GITHUB_REPOSITORY_NAME: 'mock-github-repository',
+            GITHUB_REPOSITORY_OWNER_NAME: '',
         }
 
 
@@ -183,7 +183,7 @@ def test_pipeline_pulls_source_from_github(monkeypatch):
         app,
         'Dev-PipelineStackForTests',
         target_environment=DEV,
-        target_branch='development',
+        target_branch='main',
         # Target and Pipeline account/region are the same - not testing cross-account/cross-region
         target_aws_env={ 'account': mock_account_id, 'region': mock_region },
         env=cdk.Environment(
@@ -203,15 +203,14 @@ def test_pipeline_pulls_source_from_github(monkeypatch):
                             {
                                 "ActionTypeId": {
                                     "Category": "Source",
-                                    "Owner": "AWS", #"ThirdParty",
-                                    "Provider": "CodeStarSourceConnection", #""GitHub",
+                                    "Owner": "ThirdParty",
+                                    "Provider": "GitHub",
                                     "Version": "1"
                                 },
                                 "Configuration": Match.any_value(),
                                 "Name": Match.any_value(),
                                 "OutputArtifacts": Match.any_value(),
                                 "RunOrder": 1,
-                                "RoleArn": { "Fn::GetAtt": [ "DevTestLakePipelineSourceCodePipelineActionRole27BD0948", "Arn" ] },
                             },
                         ],
                         "Name": "Source",

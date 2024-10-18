@@ -3,6 +3,7 @@
 import aws_cdk as cdk
 import aws_cdk.aws_codebuild as CodeBuild
 import aws_cdk.aws_codepipeline as CodePipeline
+import aws_cdk.aws_codepipeline_actions as CodePipelineActions
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_logs as logs
 import aws_cdk.aws_s3 as s3
@@ -117,20 +118,11 @@ class PipelineStack(cdk.Stack):
             ]
         )
 
-        code_pipeline=CodePipeline.Pipeline(
-                self,
-                f'{target_environment}{self.logical_id_prefix}Pipeline',
-                pipeline_name=f'{target_environment.lower()}-{self.resource_name_prefix}-infrastructure-pipeline',
-                pipeline_type=CodePipeline.PipelineType.V2,
-                execution_mode=CodePipeline.ExecutionMode.QUEUED,
-                cross_account_keys=True
-            )
-
         pipeline = Pipelines.CodePipeline(
             self,
             f'{target_environment}{self.logical_id_prefix}InfrastructurePipeline',
+            pipeline_name=f'{target_environment.lower()}-{self.resource_name_prefix}-infrastructure-pipeline',
             code_build_defaults=code_build_opt,
-            code_pipeline=code_pipeline,
             self_mutation=True,
             synth=Pipelines.ShellStep(
                 'Synth',
@@ -138,11 +130,10 @@ class PipelineStack(cdk.Stack):
                 commands=[
                     'npm install -g aws-cdk',
                     'python -m pip install -r requirements.txt --root-user-action=ignore',
-                    'cdk synth',
+                    'cdk synth'
                 ],
-                primary_output_directory='cdk.out',
             ),
-            #cross_account_keys=True
+            cross_account_keys=True
         )
 
         pipeline_deploy_stage = PipelineDeployStage(
@@ -204,13 +195,6 @@ class PipelineStack(cdk.Stack):
             },
         ], apply_to_children=True)
 
-        NagSuppressions.add_resource_suppressions(code_pipeline, [
-            {
-                'id': 'AwsSolutions-IAM5',
-                'reason': 'Wildcard IAM permissions are used by auto-created Codepipeline policies and custom policies to allow flexible creation of resources'
-            },
-        ], apply_to_children=True)
-
 
     def get_codepipeline_source(self) -> Pipelines.CodePipelineSource:
         """Based on configuration, create a CodePipeline source object for the selected repository type
@@ -221,25 +205,14 @@ class PipelineStack(cdk.Stack):
             CodePipeline source repository object
         """
         if self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]:
-            return Pipelines.CodePipelineSource.connection(
-                repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
-                f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
-                branch=self.target_branch,
-                action_name='Source',
-                connection_arn="arn:aws:codestar-connections:us-east-1:787127824249:connection/ac69c4b3-c806-4b73-9bb8-df7c3a9b6162",
-                trigger_on_push=True,
-            )
-
-
-
-# Github
-            # return Pipelines.CodePipelineSource.git_hub(
-            #         repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
-            #             f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
-            #         branch=self.target_branch,
-            #         action_name='Source',
-            #         authentication=cdk.SecretValue.secrets_manager(
-            #             self.mappings[DEPLOYMENT][GITHUB_TOKEN_NAME]
-            #         ),
-            #         trigger=CodePipelineActions.GitHubTrigger.POLL,
-            #     )
+            # Github
+            return Pipelines.CodePipelineSource.git_hub(
+                    repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
+                        f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
+                    branch=self.target_branch,
+                    action_name='Source',
+                    authentication=cdk.SecretValue.secrets_manager(
+                        self.mappings[DEPLOYMENT][GITHUB_TOKEN_NAME]
+                    ),
+                    trigger=CodePipelineActions.GitHubTrigger.POLL,
+                )
