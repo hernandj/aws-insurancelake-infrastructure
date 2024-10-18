@@ -3,7 +3,6 @@
 import aws_cdk as cdk
 import aws_cdk.aws_codebuild as CodeBuild
 import aws_cdk.aws_codepipeline as CodePipeline
-import aws_cdk.aws_codepipeline_actions as CodePipelineActions
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_logs as logs
 import aws_cdk.aws_s3 as s3
@@ -141,6 +140,7 @@ class PipelineStack(cdk.Stack):
                     'python -m pip install -r requirements.txt --root-user-action=ignore',
                     'cdk synth',
                 ],
+                primary_output_directory='cdk.out',
             ),
             #cross_account_keys=True
         )
