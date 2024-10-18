@@ -139,7 +139,7 @@ class PipelineStack(cdk.Stack):
                 commands=[
                     'npm install -g aws-cdk',
                     'python -m pip install -r requirements.txt --root-user-action=ignore',
-                    'cdk synth'
+                    'cdk synth',
                 ],
             ),
             #cross_account_keys=True
@@ -221,14 +221,25 @@ class PipelineStack(cdk.Stack):
             CodePipeline source repository object
         """
         if self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]:
-            # Github
-            return Pipelines.CodePipelineSource.git_hub(
-                    repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
-                        f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
-                    branch=self.target_branch,
-                    action_name='Source',
-                    authentication=cdk.SecretValue.secrets_manager(
-                        self.mappings[DEPLOYMENT][GITHUB_TOKEN_NAME]
-                    ),
-                    trigger=CodePipelineActions.GitHubTrigger.POLL,
-                )
+            return Pipelines.CodePipelineSource.connection(
+                repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
+                f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
+                branch=self.target_branch,
+                action_name='Source',
+                connection_arn="arn:aws:codestar-connections:us-east-1:787127824249:connection/ac69c4b3-c806-4b73-9bb8-df7c3a9b6162",
+                trigger_on_push=True,
+            )
+
+
+
+# Github
+            # return Pipelines.CodePipelineSource.git_hub(
+            #         repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
+            #             f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
+            #         branch=self.target_branch,
+            #         action_name='Source',
+            #         authentication=cdk.SecretValue.secrets_manager(
+            #             self.mappings[DEPLOYMENT][GITHUB_TOKEN_NAME]
+            #         ),
+            #         trigger=CodePipelineActions.GitHubTrigger.POLL,
+            #     )
