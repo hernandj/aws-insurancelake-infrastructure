@@ -32,7 +32,7 @@ def mock_get_local_configuration_with_github(environment, local_mapping = None):
     return mock_configuration_base | \
         {
             GITHUB_REPOSITORY_NAME: 'mock-github-repository',
-            GITHUB_REPOSITORY_OWNER_NAME: '',
+            GITHUB_REPOSITORY_OWNER_NAME: 'hernandj',
         }
 
 
@@ -197,19 +197,22 @@ def test_pipeline_pulls_source_from_github(monkeypatch):
         'AWS::CodePipeline::Pipeline',
         Match.object_like(
             {
+                "PipelineType": "V2",
+                "ExecutionMode": "QUEUED",
                 "Stages": Match.array_with([
                     {
                         "Actions": [
                             {
                                 "ActionTypeId": {
                                     "Category": "Source",
-                                    "Owner": "ThirdParty",
-                                    "Provider": "GitHub",
+                                    "Owner": "AWS",
+                                    "Provider": "CodeStarSourceConnection",
                                     "Version": "1"
                                 },
                                 "Configuration": Match.any_value(),
                                 "Name": Match.any_value(),
                                 "OutputArtifacts": Match.any_value(),
+                                "RoleArn": Match.any_value(),
                                 "RunOrder": 1,
                             },
                         ],
