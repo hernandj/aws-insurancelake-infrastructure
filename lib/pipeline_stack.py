@@ -1,13 +1,13 @@
 # Copyright Amazon.com and its affiliates; all rights reserved. This file is Amazon Web Services Content and may not be duplicated or distributed without permission.
 # SPDX-License-Identifier: MIT-0
 import aws_cdk as cdk
-import aws_cdk.aws_codebuild as CodeBuild
-import aws_cdk.aws_codepipeline as CodePipeline
-import aws_cdk.aws_codepipeline_actions as CodePipelineActions
+import aws_cdk.aws_codebuild as codebuild
+import aws_cdk.aws_codepipeline as codepipeline
+import aws_cdk.aws_codepipeline_actions as codepipeline_actions
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_logs as logs
 import aws_cdk.aws_s3 as s3
-import aws_cdk.pipelines as Pipelines
+import aws_cdk.pipelines as pipelines
 from cdk_nag import AwsSolutionsChecks, NagSuppressions
 from constructs import Construct
 
@@ -88,13 +88,16 @@ class PipelineStack(cdk.Stack):
         target_aws_env
             The CDK env variables used for stacks in the deploy stage
         """
-        code_build_env = CodeBuild.BuildEnvironment(
-            build_image=CodeBuild.LinuxBuildImage.STANDARD_7_0,
-            privileged=False
-        )
+        # code_build_env=codebuild.BuildEnvironment(
+        #     build_image=codebuild.LinuxBuildImage.STANDARD_7_0,
+        #     privileged=False
+        # )
 
-        code_build_opt = Pipelines.CodeBuildOptions(
-            build_environment=code_build_env,
+        code_build_opt = pipelines.CodeBuildOptions(
+            build_environment=codebuild.BuildEnvironment(
+                build_image=codebuild.LinuxBuildImage.STANDARD_7_0,
+                privileged=False
+            ),
             role_policy=[
                 iam.PolicyStatement(
                     sid='InfrastructurePipelineSecretsManagerPolicy',
@@ -118,22 +121,42 @@ class PipelineStack(cdk.Stack):
             ]
         )
 
-        pipeline = Pipelines.CodePipeline(
+        code_pipeline = codepipeline.Pipeline(
             self,
             f'{target_environment}{self.logical_id_prefix}InfrastructurePipeline',
             pipeline_name=f'{target_environment.lower()}-{self.resource_name_prefix}-infrastructure-pipeline',
+            cross_account_keys=True,
+            pipeline_type=codepipeline.PipelineType.V2,
+            execution_mode=codepipeline.ExecutionMode.QUEUED,
+        )
+
+        # git_input = pipelines.CodePipelineSource.connection(
+        #     action_name="Source",
+        #     repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
+        #                 f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
+        #     branch=self.target_branch,
+        #     connection_arn="arn:aws:codestar-connections:us-east-1:787127824249:connection/ac69c4b3-c806-4b73-9bb8-df7c3a9b6162"
+        # )
+
+        synth_step=pipelines.ShellStep(
+            'Synth',
+            input=self.get_codepipeline_source(),
+            commands=[
+                'npm install -g aws-cdk',
+                'python -m pip install -r requirements.txt --root-user-action=ignore',
+                'cdk synth'
+            ],
+        )
+
+        pipeline = pipelines.CodePipeline(
+            self,
+            f'{target_environment}{self.logical_id_prefix}InfrastructureCodePipeline',
+            #pipeline_name=f'{target_environment.lower()}-{self.resource_name_prefix}-infrastructure-pipeline',
             code_build_defaults=code_build_opt,
+            synth=synth_step,
+            code_pipeline=code_pipeline,
             self_mutation=True,
-            synth=Pipelines.ShellStep(
-                'Synth',
-                input=self.get_codepipeline_source(),
-                commands=[
-                    'npm install -g aws-cdk',
-                    'python -m pip install -r requirements.txt --root-user-action=ignore',
-                    'cdk synth'
-                ],
-            ),
-            cross_account_keys=True
+            #cross_account_keys=True
         )
 
         pipeline_deploy_stage = PipelineDeployStage(
@@ -161,7 +184,7 @@ class PipelineStack(cdk.Stack):
         # that write to CloudWatch logs
         for stage in pipeline.pipeline.stages:
             for action in stage.actions:
-                if action.action_properties.category == CodePipeline.ActionCategory.BUILD:
+                if action.action_properties.category == codepipeline.ActionCategory.BUILD:
                     logs.LogGroup(
                         self,
                         id=f'CodeBuildAction{action.action_properties.action_name}LogGroup',
@@ -195,24 +218,28 @@ class PipelineStack(cdk.Stack):
             },
         ], apply_to_children=True)
 
+        NagSuppressions.add_resource_suppressions(code_pipeline, [
+            {
+                'id': 'AwsSolutions-IAM5',
+                'reason': 'Wildcard IAM permissions are used by auto-created Codepipeline policies and custom policies to allow flexible creation of resources'
+            },
+        ], apply_to_children=True)
 
-    def get_codepipeline_source(self) -> Pipelines.CodePipelineSource:
-        """Based on configuration, create a CodePipeline source object for the selected repository type
+
+    def get_codepipeline_source(self) -> pipelines.CodePipelineSource:
+        """Based on configuration, create a CodePipeline source connection for the selected repository
 
         Returns
         -------
-        Pipelines.CodePipelineSource
-            CodePipeline source repository object
+        pipelines.CodePipelineSource
+            Returns a CodeStar connection source.
         """
         if self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]:
             # Github
-            return Pipelines.CodePipelineSource.git_hub(
-                    repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
-                        f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
-                    branch=self.target_branch,
-                    action_name='Source',
-                    authentication=cdk.SecretValue.secrets_manager(
-                        self.mappings[DEPLOYMENT][GITHUB_TOKEN_NAME]
-                    ),
-                    trigger=CodePipelineActions.GitHubTrigger.POLL,
-                )
+            return pipelines.CodePipelineSource.connection(
+                action_name="Source",
+                repo_string=f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_OWNER_NAME]}/'
+                    f'{self.mappings[DEPLOYMENT][GITHUB_REPOSITORY_NAME]}',
+                branch=self.target_branch,
+                connection_arn="arn:aws:codestar-connections:us-east-1:787127824249:connection/ac69c4b3-c806-4b73-9bb8-df7c3a9b6162"
+            )
