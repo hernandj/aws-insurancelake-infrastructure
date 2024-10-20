@@ -58,6 +58,7 @@ class PipelineStack(cdk.Stack):
         self.logical_id_prefix = get_logical_id_prefix()
         self.resource_name_prefix = get_resource_name_prefix()
         self.target_branch = target_branch
+        self.target_environment = target_environment
 
         if (target_environment == PROD or target_environment == TEST):
             self.removal_policy = cdk.RemovalPolicy.RETAIN
@@ -128,6 +129,7 @@ class PipelineStack(cdk.Stack):
             cross_account_keys=True,
             pipeline_type=codepipeline.PipelineType.V2,
             execution_mode=codepipeline.ExecutionMode.QUEUED,
+            artifact_bucket=self.get_artifact_bucket(),
         )
 
         # git_input = pipelines.CodePipelineSource.connection(
@@ -243,3 +245,26 @@ class PipelineStack(cdk.Stack):
                 branch=self.target_branch,
                 connection_arn="arn:aws:codestar-connections:us-east-1:787127824249:connection/ac69c4b3-c806-4b73-9bb8-df7c3a9b6162"
             )
+
+    def get_artifact_bucket(self) -> s3.Bucket:
+        """Returns the artifact bucket for the pipeline
+
+        Returns
+        -------
+        s3.Bucket
+            Returns the artifact bucket for the pipeline
+        """
+        return s3.Bucket(
+            self,
+            id=f'{self.target_environment}{self.logical_id_prefix}Infrastructure-Artifact',
+            bucket_name=f'{self.target_environment.lower()}-{self.resource_name_prefix}-infrastructure-artifact',
+            access_control=s3.BucketAccessControl.PRIVATE,
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
+            enforce_ssl=True,
+            bucket_key_enabled=True,
+            encryption=s3.BucketEncryption.KMS,
+            public_read_access=False,
+            removal_policy=self.removal_policy,
+            versioned=True,
+            object_ownership=s3.ObjectOwnership.OBJECT_WRITER,
+        )
