@@ -1,14 +1,22 @@
 # Copyright Amazon.com and its affiliates; all rights reserved. This file is Amazon Web Services Content and may not be duplicated or distributed without permission.
 # SPDX-License-Identifier: MIT-0
 import aws_cdk as cdk
-from constructs import Construct
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_kms as kms
 import aws_cdk.aws_s3 as s3
+from constructs import Construct
 
-from .configuration import (
-    PROD, S3_ACCESS_LOG_BUCKET, S3_CONFORMED_BUCKET, S3_KMS_KEY, S3_PURPOSE_BUILT_BUCKET, S3_RAW_BUCKET, TEST,
-    get_environment_configuration, get_logical_id_prefix, get_resource_name_prefix,
+from ..configuration import (
+    PROD,
+    S3_ACCESS_LOG_BUCKET,
+    S3_CONFORMED_BUCKET,
+    S3_KMS_KEY,
+    S3_PURPOSE_BUILT_BUCKET,
+    S3_RAW_BUCKET,
+    TEST,
+    get_environment_configuration,
+    get_logical_id_prefix,
+    get_resource_name_prefix,
 )
 
 

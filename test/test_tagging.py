@@ -1,17 +1,13 @@
 # Copyright Amazon.com and its affiliates; all rights reserved. This file is Amazon Web Services Content and may not be duplicated or distributed without permission.
 # SPDX-License-Identifier: MIT-0
-import pytest
 import aws_cdk as cdk
 import aws_cdk.aws_s3 as s3
-from aws_cdk.assertions import Template, Match
+import pytest
+from aws_cdk.assertions import Match, Template
 
-import lib.tagging as tagging
-from lib.tagging import (
-	COST_CENTER, TAG_ENVIRONMENT, TEAM, APPLICATION
-)
-from lib.configuration import (
-	ENVIRONMENT, DEPLOYMENT, DEV, PROD, TEST
-)
+import lib.stacks.tagging as tagging
+from lib.configuration import DEPLOYMENT, DEV, ENVIRONMENT, PROD, TEST
+from lib.stacks.tagging import APPLICATION, COST_CENTER, TAG_ENVIRONMENT, TEAM
 
 test_environment = DEPLOYMENT
 test_id_prefix = 'TestPrefix'

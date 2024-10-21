@@ -17,7 +17,7 @@ from lib.configuration import (
     RESOURCE_NAME_PREFIX,
     TEST,
 )
-from lib.pipeline_stack import PipelineStack
+from lib.stacks.pipeline_stack import PipelineStack
 
 mock_configuration_base = {
     ACCOUNT_ID: mock_account_id,

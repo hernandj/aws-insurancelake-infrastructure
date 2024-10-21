@@ -11,7 +11,7 @@ import aws_cdk.pipelines as pipelines
 from cdk_nag import AwsSolutionsChecks, NagSuppressions
 from constructs import Construct
 
-from .configuration import (
+from ..configuration import (
     ACCOUNT_ID,
     DEPLOYMENT,
     GITHUB_REPOSITORY_NAME,
@@ -23,7 +23,7 @@ from .configuration import (
     get_logical_id_prefix,
     get_resource_name_prefix,
 )
-from .pipeline_deploy_stage import PipelineDeployStage
+from ..stages.pipeline_deploy_stage import PipelineDeployStage
 
 
 class PipelineStack(cdk.Stack):

@@ -2,10 +2,16 @@
 # SPDX-License-Identifier: MIT-0
 import aws_cdk as cdk
 from constructs import Construct
-from .vpc_stack import VpcStack
-from .s3_bucket_zones_stack import S3BucketZonesStack
-from .tagging import tag
-from .configuration import VPC_CIDR, get_environment_configuration, get_logical_id_prefix
+
+from ..configuration import (
+    VPC_CIDR,
+    get_environment_configuration,
+    get_logical_id_prefix,
+)
+from ..stacks.s3_bucket_zones_stack import S3BucketZonesStack
+from ..stacks.tagging import tag
+from ..stacks.vpc_stack import VpcStack
+
 
 class PipelineDeployStage(cdk.Stage):
     def __init__(

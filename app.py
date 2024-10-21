@@ -17,9 +17,9 @@ from lib.configuration import (
     get_all_configurations,
     get_logical_id_prefix,
 )
-from lib.empty_stack import EmptyStack
-from lib.pipeline_stack import PipelineStack
-from lib.tagging import tag
+from lib.stacks.empty_stack import EmptyStack
+from lib.stacks.pipeline_stack import PipelineStack
+from lib.stacks.tagging import tag
 
 app = cdk.App()
 

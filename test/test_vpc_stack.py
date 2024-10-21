@@ -1,16 +1,23 @@
 # Copyright Amazon.com and its affiliates; all rights reserved. This file is Amazon Web Services Content and may not be duplicated or distributed without permission.
 # SPDX-License-Identifier: MIT-0
-import pytest
 import aws_cdk as cdk
+import pytest
 from aws_cdk.assertions import Template
-
 from boto_mocking_helper import *
-from lib.vpc_stack import VpcStack
 
 import lib.configuration as configuration
 from lib.configuration import (
-    DEV, PROD, TEST, ACCOUNT_ID, REGION, VPC_CIDR, RESOURCE_NAME_PREFIX, LOGICAL_ID_PREFIX
+    ACCOUNT_ID,
+    DEV,
+    LOGICAL_ID_PREFIX,
+    PROD,
+    REGION,
+    RESOURCE_NAME_PREFIX,
+    TEST,
+    VPC_CIDR,
 )
+from lib.stacks.vpc_stack import VpcStack
+
 
 def mock_get_local_configuration_with_vpc(environment, local_mapping = None):
     return {

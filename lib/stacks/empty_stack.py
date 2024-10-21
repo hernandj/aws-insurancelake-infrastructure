@@ -3,6 +3,7 @@
 import aws_cdk as cdk
 from constructs import Construct
 
+
 class EmptyStack(cdk.Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs):

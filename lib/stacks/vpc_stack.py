@@ -1,21 +1,34 @@
 # Copyright Amazon.com and its affiliates; all rights reserved. This file is Amazon Web Services Content and may not be duplicated or distributed without permission.
 # SPDX-License-Identifier: MIT-0
 import aws_cdk as cdk
-from constructs import Construct
 import aws_cdk.aws_ec2 as ec2
 import aws_cdk.aws_logs as logs
+from constructs import Construct
 
-from .configuration import (
-    AVAILABILITY_ZONE_1, AVAILABILITY_ZONE_2, AVAILABILITY_ZONE_3, ROUTE_TABLE_1, ROUTE_TABLE_2, ROUTE_TABLE_3,
-    SHARED_SECURITY_GROUP_ID, SUBNET_ID_1, SUBNET_ID_2, SUBNET_ID_3, VPC_CIDR, VPC_ID, PROD, TEST,
-    get_environment_configuration, get_logical_id_prefix
+from ..configuration import (
+    AVAILABILITY_ZONE_1,
+    AVAILABILITY_ZONE_2,
+    AVAILABILITY_ZONE_3,
+    PROD,
+    ROUTE_TABLE_1,
+    ROUTE_TABLE_2,
+    ROUTE_TABLE_3,
+    SHARED_SECURITY_GROUP_ID,
+    SUBNET_ID_1,
+    SUBNET_ID_2,
+    SUBNET_ID_3,
+    TEST,
+    VPC_CIDR,
+    VPC_ID,
+    get_environment_configuration,
+    get_logical_id_prefix,
 )
 
 
 class VpcStack(cdk.Stack):
 
     def __init__(
-            self, scope: Construct, construct_id: str, 
+            self, scope: Construct, construct_id: str,
             target_environment: str, env: cdk.Environment,
             **kwargs
         ):
