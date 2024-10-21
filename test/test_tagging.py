@@ -5,9 +5,9 @@ import aws_cdk.aws_s3 as s3
 import pytest
 from aws_cdk.assertions import Match, Template
 
-import lib.stacks.tagging as tagging
+import lib.tagging as tagging
 from lib.configuration import DEPLOYMENT, DEV, ENVIRONMENT, PROD, TEST
-from lib.stacks.tagging import APPLICATION, COST_CENTER, TAG_ENVIRONMENT, TEAM
+from lib.tagging import APPLICATION, COST_CENTER, TAG_ENVIRONMENT, TEAM
 
 test_environment = DEPLOYMENT
 test_id_prefix = 'TestPrefix'

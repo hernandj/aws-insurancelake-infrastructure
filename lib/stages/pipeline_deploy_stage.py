@@ -9,8 +9,8 @@ from ..configuration import (
     get_logical_id_prefix,
 )
 from ..stacks.s3_bucket_zones_stack import S3BucketZonesStack
-from ..stacks.tagging import tag
 from ..stacks.vpc_stack import VpcStack
+from ..tagging import tag
 
 
 class PipelineDeployStage(cdk.Stage):

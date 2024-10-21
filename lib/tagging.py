@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 import aws_cdk as cdk
 
-from ..configuration import (
+from .configuration import (
     get_all_configurations,
     get_logical_id_prefix,
     get_resource_name_prefix,

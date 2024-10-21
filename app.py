@@ -19,7 +19,7 @@ from lib.configuration import (
 )
 from lib.stacks.empty_stack import EmptyStack
 from lib.stacks.pipeline_stack import PipelineStack
-from lib.stacks.tagging import tag
+from lib.tagging import tag
 
 app = cdk.App()
 
